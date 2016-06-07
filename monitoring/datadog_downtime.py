@@ -191,19 +191,49 @@ def set_downtime(module, downtimes):
     loaded_recurrence = None
 
     for downtime in downtimes:
+#        print downtime
         # all scope tags must match - also the number of tags
-        if len(set(scope) - set(downtime['scope'])) == 0 and int(start) == downtime['start'] and message == downtime['message'] and recurrence == downtime['recurrence']:
-            #if end is define, also check it
-            if end:
-                if int(end) == downtime['end']:
-                    module.exit_json(changed=False, msg="Matching downtime already present (end defined)." % scope)
-            #if no end is defined, all criteria already match
-            else:
-                module.exit_json(changed=False, msg="Matching downtime already present (no end defined)." % scope)
+        if len(set(scope) - set(downtime['scope'])) == 0:
+            mismatch = False
+
+            # start must be equally defined
+            if start and not downtime['start'] or not start and downtime['start'] :
+                continue
+
+            # message must be equally defined
+            if message and not downtime['message'] or not message and downtime['message'] :
+                continue
+
+            # recurrence must be equally defined
+            if recurrence and not downtime['recurrence'] or not recurrence and downtime['recurrence'] :
+                continue
+
+            # end must be equally defined
+            if end and not downtime['end'] or not end and downtime['end'] :
+                continue
+
+            # start must match
+            if start and int(start) != downtime['start']:
+                continue
+
+            # message must match
+            if message and message and message != downtime['message']:
+                continue
+
+            # recurrence must match
+            if recurrence and recurrence != downtime['recurrence']:
+                continue
+
+            #end must match
+            if end and int(end) != downtime['end']:
+                continue
+
+            #all criteria match so no further action needed
+            module.exit_json(changed=False, msg="Matching downtime already present." % scope)
 
     # set current time for start if no start given
     if not start:
-        start = start = int(time.time())
+        start = int(time.time())
 
     if recurrence:
         loaded_recurrence = json.loads(recurrence)
@@ -273,9 +303,6 @@ def find_downtimes_by_scope(module):
         # all scope tags must match - also the number of tags
         if len(set(search_scope) - set(downtime['scope'])) == 0:
             matching_downtimes.append(downtime)
-
-    if not matching_downtimes:
-        module.fail_json(msg="No downtime matching scope '%s' found." % search_scope)
 
     return matching_downtimes
 
