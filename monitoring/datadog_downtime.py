@@ -27,7 +27,6 @@ description:
 - "Uses U(http://docs.datadoghq.com/api/#monitors) API."
 - "Uses datadogpy U(https://github.com/DataDog/datadogpy) library -> pip install datadog."
 - "Currently this module has no check mode."
-- "Remark: It is possible to set multiple downtimes with exact the same values. These can all be deleted using one absent call with the correct scope."
 version_added: "2.2.0"
 author: 'Stefan Weller <stefan.weller@asideas.de>, Github: stefanweller'
 requirements: [datadog]
